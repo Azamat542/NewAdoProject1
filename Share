@@ -1,0 +1,27 @@
+    public static void GetStatistics()
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var orderDet = db.OrderDetails
+                    .Select(x => new
+                    {
+                        x.OrderId,
+                        x.Quantity,
+                        x.Goods.Price
+                    }
+                ).AsEnumerable()
+                 .GroupBy(x => x.OrderId)
+                 .Select(y => new
+                 {
+                     OrderId = y.Key,
+                     Amount = y.Sum(y=>y.Price*y.Quantity)
+                 }).ToList();
+
+
+                var allAmount = orderDet.Sum(x => x.Amount);
+                foreach (var od in orderDet)
+                {
+                    Console.WriteLine($"Order:{od.OrderId} Share:{od.Amount*100/allAmount}");
+                }
+            }
+        }
